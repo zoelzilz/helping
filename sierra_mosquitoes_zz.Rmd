@@ -2,7 +2,9 @@
 title: "Steph Sierra Mosquitos"
 author: "Zoe"
 date: "6/1/2022"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -24,11 +26,11 @@ mosq$elevation <- factor(mosq$elevation, levels = c("low", "mid", "high"))
 ```
 
 ## let's do some visualization to see where our patterns/variation is. I like to use scatter plots
-steph's qs:
-- What happens to abundance by trap night?
-- Does it systematically decrease?
-- Some effect of cardinal direction? 
-
+steph's qs:  
+- What happens to abundance by trap night?  
+- Does it systematically decrease?   
+- Some effect of cardinal direction?  
+  
 ```{r data vis}
 trap_id_effect <- ggplot(mosq, aes(x = elevation, y = tot_mosq)) +
   geom_point(aes(color = trap_id))
@@ -52,10 +54,10 @@ direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
 
 ```
 
-*Box/Whisker plots of the data*
-Tejon style box plots would be nice
-
-What is the variation treatment (fish) by level (elevation)?
+*Box/Whisker plots of the data*  
+Tejon style box plots would be nice  
+  
+What is the variation treatment (fish) by level (elevation)?  
 
 ```{r boxplots}
 # boxplot with differences between fish/no fish, facet wrapped by elevation (hi/med/lo)
@@ -65,19 +67,21 @@ fish_elev <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
 fish_elev
 # no big diff at high, big diffs at low and med
 
-
-
-
 ```
 
 
 Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation
 
-What’s the replicate?
-Every night and/or every trap as if it was an independent sample? (every night is how data is set currently)
-Pooling them to a single trap?
-Or run with random effect of Trap ID?
-What is the result of that? Is there something we can confidently say is significant?
+What’s the replicate?  
+
+Every night and/or every trap as if it was an independent sample? (every night is how data is set currently)  
+
+Pooling them to a single trap?  
+
+Or run with random effect of Trap ID?  
+
+What is the result of that? Is there something we can confidently say is significant?  
+
 
 
 
