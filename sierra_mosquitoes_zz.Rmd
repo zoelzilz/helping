@@ -20,9 +20,14 @@ mosq <- read_csv("mosq2019_sjc.csv") %>%
 
 # fish needs to be a factor:
 mosq$fish <- factor(mosq$fish)
+mosq$elevation <- factor(mosq$elevation, levels = c("low", "mid", "high"))
 ```
 
 ## let's do some visualization to see where our patterns/variation is. I like to use scatter plots
+steph's qs:
+- What happens to abundance by trap night?
+- Does it systematically decrease?
+- Some effect of cardinal direction? 
 
 ```{r data vis}
 trap_id_effect <- ggplot(mosq, aes(x = elevation, y = tot_mosq)) +
@@ -51,30 +56,19 @@ direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
 Tejon style box plots would be nice
 
 What is the variation treatment (fish) by level (elevation)?
-What happens to abundance by trap night?
-Does it systematically decrease?
-Some effect of cardinal direction? 
 
 ```{r boxplots}
+# boxplot with differences between fish/no fish, facet wrapped by elevation (hi/med/lo)
 fish_elev <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
   geom_boxplot()+
   facet_wrap(vars(elevation))
+fish_elev
+# no big diff at high, big diffs at low and med
 
 
 
-date_effect <- ggplot(mosq, aes(x = date, y = tot_mosq)) +
-  geom_point()
-date_effect
-#maybe an increase in mosquitoes by date? might want to include an interaction of date and elev in model
 
-fish_effect <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
-  geom_point(aes(color = elevation))
-# more mosquitoes with fish
-
-direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
-  geom_point(aes(color = elevation))
 ```
-
 
 
 Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation
