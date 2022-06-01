@@ -1,0 +1,90 @@
+---
+title: "Steph Sierra Mosquitos"
+author: "Zoe"
+date: "6/1/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+```
+
+*John’s Data*
+```{r reading in data and cleaning}
+mosq <- read_csv("mosq2019_sjc.csv") %>% 
+  #for analyses, only need fish (ind), elevation (ind), lake?, direction (ind) trap_id (random), date (random), tot_mosq(response var)
+  select(tot_mosq, fish, elevation, lake, trap_id, date, direction)
+
+# fish needs to be a factor:
+mosq$fish <- factor(mosq$fish)
+```
+
+## let's do some visualization to see where our patterns/variation is. I like to use scatter plots
+
+```{r data vis}
+trap_id_effect <- ggplot(mosq, aes(x = elevation, y = tot_mosq)) +
+  geom_point(aes(color = trap_id))
+trap_id_effect
+# new mac is broken so to ggplot, have to copy graph name and put in console
+
+# no noticable effect of trap_id, should prob code as random
+
+date_effect <- ggplot(mosq, aes(x = date, y = tot_mosq)) +
+  geom_point()
+date_effect
+#maybe an increase in mosquitoes by date? might want to include an interaction of date and elev in model
+
+fish_effect <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
+  geom_point(aes(color = elevation))
+# more mosquitoes with fish
+
+direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
+  geom_point(aes(color = elevation))
+# N and S facing traps look like they have more mosquitoes
+
+```
+
+*Box/Whisker plots of the data*
+Tejon style box plots would be nice
+
+What is the variation treatment (fish) by level (elevation)?
+What happens to abundance by trap night?
+Does it systematically decrease?
+Some effect of cardinal direction? 
+
+```{r boxplots}
+fish_elev <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
+  geom_boxplot()+
+  facet_wrap(vars(elevation))
+
+
+
+date_effect <- ggplot(mosq, aes(x = date, y = tot_mosq)) +
+  geom_point()
+date_effect
+#maybe an increase in mosquitoes by date? might want to include an interaction of date and elev in model
+
+fish_effect <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
+  geom_point(aes(color = elevation))
+# more mosquitoes with fish
+
+direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
+  geom_point(aes(color = elevation))
+```
+
+
+
+Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation
+
+What’s the replicate?
+Every night and/or every trap as if it was an independent sample? (every night is how data is set currently)
+Pooling them to a single trap?
+Or run with random effect of Trap ID?
+What is the result of that? Is there something we can confidently say is significant?
+
+
+
+
