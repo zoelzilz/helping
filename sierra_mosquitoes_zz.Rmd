@@ -47,10 +47,12 @@ date_effect
 fish_effect <- ggplot(mosq, aes(x = fish, y = tot_mosq)) +
   geom_point(aes(color = elevation))
 # more mosquitoes with fish
+fish_effect
 
 direction_effect <- ggplot(mosq, aes(x = direction, y = tot_mosq)) +
   geom_point(aes(color = elevation))
 # N and S facing traps look like they have more mosquitoes
+direction_effect
 
 ```
 
