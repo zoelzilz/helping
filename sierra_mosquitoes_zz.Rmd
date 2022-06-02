@@ -12,13 +12,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(janitor)
+library(MASS)
+#install.packages("lme4")
+library(lme4)
 ```
 
 *John’s Data*
 ```{r reading in data and cleaning}
 mosq <- read_csv("mosq2019_sjc.csv") %>% 
   #for analyses, only need fish (ind), elevation (ind), lake?, direction (ind) trap_id (random), date (random), tot_mosq(response var)
-  select(tot_mosq, fish, elevation, lake, trap_id, date, direction)
+  dplyr::select(tot_mosq, fish, elevation, lake, trap_id, date, direction)
 
 # fish needs to be a factor:
 mosq$fish <- factor(mosq$fish)
@@ -71,8 +74,20 @@ fish_elev
 
 ```
 
+What's the distribution of the data?
+```{r distribution}
 
-Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation
+hist <- ggplot(mosq, aes(x = tot_mosq)) +
+  geom_histogram(aes(fill = elevation))
+hist
+
+# lol aggregated af
+# high elev data might be more normal, but not by much
+# definitely run w/ a negative binomial distribution instead of a poisson
+```
+
+
+Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation + site (random)
 
 What’s the replicate?  
 
@@ -84,6 +99,19 @@ Or run with random effect of Trap ID?
 
 What is the result of that? Is there something we can confidently say is significant?  
 
+```{r}
+
+### response variable is count data, so 
+
+#m1 <- glm(tot_mosq ~ fish + elevation + fish*elevation + 1|trap_id, family = "binomial", link = "logit")
+
+### https://stats.oarc.ucla.edu/r/dae/negative-binomial-regression/ <- doesnt work with mixed effects
+
+#m1 <- glm.nb(tot_mosq ~ fish + elevation + (fish*elevation) + 1|trap_id, data = mosq, link = log)
+
+### https://rdrr.io/cran/lme4/man/glmer.nb.html <- glmer.nb from the lme4 package does!
+m1 <- glmer.nb(tot_mosq ~ fish + elevation + (fish*elevation) + 1|trap_id, data = mosq, link = log)
+```
 
 
 
