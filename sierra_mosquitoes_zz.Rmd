@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(janitor)
-library(MASS)
+#library(MASS)
 #install.packages("lme4")
 library(lme4)
 ```
@@ -86,8 +86,8 @@ hist
 # definitely run w/ a negative binomial distribution instead of a poisson
 ```
 
-
-Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation + site (random)
+## Models? 
+**Mixed effect model - Mos abundance = Fish status (Y/N) + Elevation (High, Medium, Low) + Fish:Elevation + site (random)**
 
 What’s the replicate?  
 
@@ -103,6 +103,8 @@ What is the result of that? Is there something we can confidently say is signifi
 
 ### response variable is count data, so 
 
+### W'RE DUMN and tried to run this with 
+
 #m1 <- glm(tot_mosq ~ fish + elevation + fish*elevation + 1|trap_id, family = "binomial", link = "logit")
 
 ### https://stats.oarc.ucla.edu/r/dae/negative-binomial-regression/ <- doesnt work with mixed effects
@@ -110,7 +112,9 @@ What is the result of that? Is there something we can confidently say is signifi
 #m1 <- glm.nb(tot_mosq ~ fish + elevation + (fish*elevation) + 1|trap_id, data = mosq, link = log)
 
 ### https://rdrr.io/cran/lme4/man/glmer.nb.html <- glmer.nb from the lme4 package does!
-m1 <- glmer.nb(tot_mosq ~ fish + elevation + (fish*elevation) + 1|trap_id, data = mosq, link = log)
+m1 <- glmer.nb(tot_mosq ~ fish + elevation + (fish*elevation) + (1|direction), data = mosq)
+m1
+
 ```
 
 
