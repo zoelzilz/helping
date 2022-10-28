@@ -7,6 +7,8 @@ output:
   pdf_document: default
 ---
 
+# Preliminary Data Fun Times
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -118,5 +120,48 @@ m1
 ```
 
 
+# Importing GPX data and measuring lake area
+
+```{r setup}
+require(maptools) # apparently being retired end of 2023
+require(rgdal) # same
+require(sf)
+
+
+## from other importing gpx markdown ##
+library(plotKML)
+library(tidyverse)
+library(ggmap)
+register_google(key = "AIzaSyBArxYrAlB60bafi6iGDYGtWox6ZIgylNg")
+# had to register a key with personal email because the zilz@ucsb.edu one is all on the fritz about billing nonsense SO
+
+# maybe need?
+library(maps)
+library(sf)
+library(rnaturalearth)
+```
+
+```{r reading and cleaning data}
+
+#readOGR is in maptools
+
+coney <- readOGR(dsn= "Track_2022-06-29 1027 CONEY EDGE.gpx", layer = "tracks")
+
+str(coney)
+
+
+```
+
+```{r plotting and getting area}
+
+plot(coney) #doesnt look like much and we can't calc area, but it's a start
+
+# using package sf to convert, hopefully
+coney_sf <- st_as_sf(coney) # converts to shapefile
+coney_poly <- st_polygonize(coney_sf) # converts to polygon? still a sf dataframe
+##coney <- as(coney_poly, "Spatial") # If you want sp NOT WRKING
+
+
+```
 
 
