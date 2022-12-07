@@ -1,0 +1,104 @@
+---
+title: "Maddie"
+output: html_document
+date: "2022-12-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(readxl)
+```
+
+```{r emily's code}
+
+
+# Reading in files
+all_data <- read_csv("Maddie/hardison2022_abt_TPC_data.csv") %>% 
+  #clean_names() %>% 
+  filter(test == "hot", # filter is a function that removes rows, we are selecting rows that have "hot" in the column test
+         #timepoint %in% c("0", "1", "3", "7", "14")
+         ) #%>% # selecting for specific timepoints using a list (c())
+  mutate(timepoint = as.numeric(timepoint)) %>% # turned this entire column into numbers
+  mutate(replicate_number = as.factor(replicate_number))%>% 
+  mutate(diet = as.factor(diet)) # forcing a data type that will be needed later
+
+# TPC data
+tpc_data <- read_csv(here::here("data", "all_individual_abt_curves_opaspeed_2021.csv")) %>% 
+  filter(test == "hot",
+         timepoint %in% c("0", "1", "3", "7", "14")) %>% 
+  mutate(bpm = round(bpm, 2)) %>% # rounding bpm column to 2 decimal points
+  mutate(replicate_number = as.factor(replicate_number))%>% 
+  mutate(diet = as.factor(diet))%>% 
+  mutate(timepoint = as.factor(timepoint)) %>% 
+  mutate(fish_id = as.factor(fish_id))
+​
+​
+full_data <- left_join(tpc_data, all_data, by = "fish_id")
+
+
+pivot_longer()
+
+select() #chooses columns
+rename() # renames columns
+rbind() #binds rows together
+```
+
+```{r maddie's actual data - cleaning}
+
+# i put your stuff in a folder called "Maddie" so that's why filepaths will have a Maddie/ in front of filenames
+
+killifish <- read_xlsx("Maddie/killifish_abt_temp_data.xlsx", sheet = "Sheet2") # using this because I'm lazy, it's in the package readxl
+
+head(killifish) # just lookin'
+
+# ok so from what I can tell, we have two boxes (1 and 2) each with two channels (1 and 2 or 5 and 6) so four 'treatments' (box1_ch1, box1_ch2, box2_ch5, and box2_ch6)
+
+# in each treatment there is a fish. In each treatment/fish we are taking heart rate
+
+# our target dataframe will have these columns: fish, channel, box, start time, end time, time point, bpm, start temp, end temp
+
+# for each individual fish, we need to know what channel it was in, box, start and end temp, and its bpm at each timepoint
+
+
+# first we will remove all unnecessary columns, including the channel where the fish NA'd
+killi_clean <- killifish %>% 
+  rename(notes = 'notes from analysis/test') %>%  # r does NOT like spaces and slashes so this colname has to go
+  select(!c(time, date, cmt_text, filename)) # ! in front of c() means select OUT the following list of columns
+
+#######now we need to melt this dataset like a million times to achieve all of the data we will need in all of the rows#######
+
+#######################################################################################################################starting by making a long form dataset of the fish bpms and all associated data (taken for the whole test, all channels)##############################################################################################################
+killi_bpms <- killi_clean %>% 
+  select(ch1_bpm, ch2_bpm, ch5_bpm, ch6_bpm, 
+         sel_start, sel_end, sel_duration, test_timepoint_start, test_timepoint_end, notes) %>%  #only selecting for data that's taken when heart rate is taken (per timepoint) but for the entire test (aka not data taken in each channel like temperature)
+  
+  # i want to get rid of the "_bpm" at the end of these cols, we won't need it
+ 
+  rename_with( # rename_with() tells r to rename columns using a function
+    ~str_remove(., "_bpm"), ends_with("bpm")) %>%  # that function is, remove the string "_bpm" from every column that ends with bpm in this dataset (that's what the ".," means)
+
+  # now we want to create one row per observation of bpm and create a col called channel so each bpm observation has a matched cell with the channel it was observed in
+  
+  #hopefully the rest of the data will just copy down appropriately
+
+  pivot_longer(1:4, names_to = "channel", # column names for columns 1-4 will be put in a new col called channel
+               values_to = "bpm") # observations will be put in a new col called bpm
+
+#######################################################################################################################now i'm making a separate long form df of just the fish names in each channel, along with the data that was measured in each channel per fish trial (aka start and end temps)#################################################################################################################
+killi_ids  <- killi_clean %>% 
+  select(box1_ch1, box1_ch2, box2_ch5, box2_ch6, box1_temp_start, box1_temp_end, box2_temp_start, box2_temp_end) %>%  #only selecting names + temps (temps should copy + fill in appropriately)
+  pivot_longer(1:4, names_to = c("box", "channel"),
+               names_sep = "_", 
+               values_to = "fishID")
+
+# these are in the exact same order as bpms right now so we can cbind them (merge() and full_join() will try to use all possible combinations and bc there are vague matching elements we have to avoid this and rely on order)
+
+killi_full <- cbind(killi_ids, killi_bpms) #only annoying thing about cbind is that it keeps all columns (both channel cols), but this lets us check for correct binding so it's ok
+ 
+
+  
+```
+

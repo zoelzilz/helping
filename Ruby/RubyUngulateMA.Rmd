@@ -6,24 +6,54 @@ date: "2022-10-28"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+#setwd("/Volumes/GoogleDrive/My Drive/SCHOOL/PHD_AT_UCSB/GitHub/helping/Ruby") #I just changed the working directory so it's just for your folder. If you fork or clone you will not need to do this bc I'm assuming you won't have subfolders in your own project
+
+# you will need the following packages #
+library(tidyverse)
+library(lubridate)
+library(janitor)
 ```
 
-## R Markdown
+## From Ruby
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+So, students are still extracting data from some papers, but Diego's sheet (he's one of the tabs) is a good starting place to just practice cause I like and trust his work. He and I are working on standardizing everyone else's sheets.  
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Right now there is a metadata sheet for ungulates, and also for plants. In the full/main data sheet that I use to analyze, there is info from both of these metadata sheets I would like included in the main one. 
+**Zoe split the big excel sheet into three CSVs, plant_metadata, ungulate_metadata, and diego_data**
 
-```{r cars}
-summary(cars)
+So for example from the ungulate metadata sheet I want: *body size, height, feeder type, ruminant/non-ruminant*. From the plant one, I want all of the *corrected species and genus names included*. 
+
+```{r importing data and cleaning}
+
+diets <- read_csv("diego_data.csv")
+
+ungulate <- read_csv("ungulate_metadata.csv") %>% 
+  rename(species = 1) %>%  # first column has weird name like ...1
+  clean_names()
+  select(species, common_name, common_name2, common_name3)
+
+plant <- read_csv("plant_metadata.csv")
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+What I want to be able to do is this:
+1. Know the number of unique plant species eaten by each ungulate
+2. Somehow use the proportion of diet column...?
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Because I want to create some kind of diet selectivity value for each animal. I've attached this extremely stream of consciousness doc that I'm using to flesh out my ideas. Feel free to comment on it!
+
+Basically once I have some *diet selectivity value* (are they specialists or generalists), I want some figures to be:
+1. body size vs selectivity value (thinking of optimal foraging theory etc here)
+2. IUCN status vs selectivity value
+3. stomach type vs "
+4. feeder type vs. "
+5. Some cool multivariate ones looking at selectivity value and two others.
+
+I've been getting stoked on those old ecological theory papers that hypothesize about how/what these animals eat and I think it would be cool to use this dataset and apply it to those old theories! "Ungulate Diet Meta-Analysis Upholds Longstanding Optimal Foraging Theories"
+
+But also come up with some definition or sliding scale of generalists and specialists?? "Herbivore Generalists and Specialists Defined: Creating a Selectivity Value from a Meta-Analysis" 
+
+The whole dataset is here. I think a lot of the data manipulation I want to do can be done in R, just unsure how much to try and do in the spreadsheet first. 
